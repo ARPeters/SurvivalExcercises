@@ -1,4 +1,4 @@
-SurvivalExcercises
+SurvivalExercises
 ==================
 This is a private repository where we few can share the code behind our practice questions and chapter exams regarding survival analysis. 
 
