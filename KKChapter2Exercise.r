@@ -101,6 +101,7 @@ survdiff(VetSurvObject~CellType)
 detach(Vets)
 
 #####################################################################################
+
 # Test Question 2:A & C
 
 # Reads in the Addicts data and attaches column names to column variables.
