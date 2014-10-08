@@ -11,6 +11,21 @@ library(foreign)
 #    Column 3 variable: group (0="CH=0", 1="CH=1")
 KMPracticeQ1Data <- read.csv("KMPracticeQ1Data.csv")
 
+# newNames <- c("group","large","adeno","small","squamous")
+# any(!sapply(strsplit(as.character(KMPracticeQ1Data$V1),""),function(x) sum(nchar(x))) == 5) #check that all v1 rows have 5 characters
+# KMPracticeQ1Data[,newNames] <- t(sapply(strsplit(as.character(KMPracticeQ1Data$V1),""),function(x) x))
+# 
+# #Delete 1st Column and reorder columns
+# KMPracticeQ1Data <- KMPracticeQ1Data[, c(8:12, 2:7) ]
+# 
+# #Rename remaining columns
+# names(KMPracticeQ1Data)[6]  <- "time"
+# names(KMPracticeQ1Data)[7]  <- "performancestatus"
+# names(KMPracticeQ1Data)[8]  <- "diseaseduration"
+# names(KMPracticeQ1Data)[9]  <- "age"
+# names(KMPracticeQ1Data)[10] <- "priortherapy"
+# names(KMPracticeQ1Data)[11] <- "status"
+
 # Sets column names to variable names, and then creates survival object from KMPracticeQ1Data
 attach(KMPracticeQ1Data)
 KMPracticeQ1Surv<-Surv(time, status==1)
@@ -36,7 +51,8 @@ detach(KMPracticeQ1Data)
 #    Column 1 variable: time
 #    Column 2 variable: event (0=censored, 1=event occured)
 #    Column 3 variable: lgwbc (log white bloodcell count; the variable to be categorized.)
-KMPracticeQ2Data <- read.csv("KMPracticeQ2Data.csv")
+#KMPracticeQ2Data <- read.csv("KMPracticeQ2Data.csv")
+
 attach(KMPracticeQ2Data)
 
 # Cuts the "logwbc" variable into three domains (0-2.30, 2.31-3.00, 3.01-max value), and then labels the domains
@@ -69,7 +85,9 @@ detach(KMPracticeQ2Data)
 # Column 6: Survt (survival time)
 # Column 11: status (0 = event censored, 1 = event occured)
 
-Vets<- read.dta("vets.dta")
+#Vets<- read.dta("vets.dta")
+Vets <- read.dta("http://web1.sph.emory.edu/dkleinb/allDatasets/surv2datasets/vets.dta")
+
 attach(Vets)
 
 # Creats three dummy variables corresponding to the cell categories
@@ -111,7 +129,8 @@ detach(Vets)
 #    Column 4: survt (Survival time in days)
 #    Column 5: prison (0 =  none, 1= any)
 #    Column 6: dose (Dose of Methadone in mg/day)
-Addicts <- read.dta("Addicts.dta")
+#Addicts <- read.dta("Addicts.dta")
+Addicts <- read.dta("http://web1.sph.emory.edu/dkleinb/allDatasets/surv2datasets/addicts.dta")
 attach(Addicts)
 
 # Creates a survival object based on survival time "survt" and whether the patients departed clinic or were censored, "status". 
@@ -120,7 +139,11 @@ attach(Addicts)
 AddictSurvObject <- Surv(survt, status==1)
 summary(survfit(AddictSurvObject~clinic))
 plot((survfit(AddictSurvObject~clinic)), col=c("Black", "Red"), conf.int=TRUE)
+legend("bottomleft",c("Clinic 1","Clinic 2"),lty=rep(1,2),col=c("Black", "Red"))
 head(Addicts)
+survdiff(AddictSurvObject~clinic)
+#survdiff(AddictSurvObject~clinic,rho=1.6)
+
 
 # Creates a new variable, DoseCategory, then divides the variable "dose" into one of four categories:
 #    (0, 45], (45, 59], (59, 67], (67, 111].
