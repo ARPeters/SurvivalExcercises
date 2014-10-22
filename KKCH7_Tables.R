@@ -38,6 +38,8 @@ WeibullAFTAddicts_Other_Function<-WeibullReg(Surv(dsAddicts$Survt, dsAddicts$Sta
 WeibullAFTAddicts_Other_Function$HR
 log(WeibullAFTAddicts_Other_Function$HR)
 
+.698*-1*1.370467
+
 #####################################################
 ##Recreating table from ch7 Test questions 11 - 17
 #####################################################
