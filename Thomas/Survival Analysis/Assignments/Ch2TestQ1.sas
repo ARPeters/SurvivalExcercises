@@ -10,8 +10,9 @@ proc freq data=survivalVets;
 	table TX;
 run;
 
-proc lifetest data=survivalVets;
+proc lifetest data=survivalVets plots=s(test);
 	time survt*status(0);
+	strata ct1;
 run;
 
 
