@@ -1,18 +1,3 @@
-libname survival 'C:\Users\twilson\Documents\GitHub\SurvivalExercises\Thomas\Survival Analysis\';
-*libname survival 'C:\Users\APETERS4\Documents\GitHub\SurvivalExercises\Thomas\Survival Analysis';
-
-data survivalVets;
-INFILE 'vets.dat';
-input @1 trt 2. @3 ct1 1. @4 ct2 1.
-@5 ct3 1. @6 ct4 1. @7 survt 4. @11 pstat 3.
-@14 disdur 3. @17 Age 3. @20 priort 3. @23 status 2.;
-run;
-
-
-data survivalVets;
-*INFILE 'vets.dat';
-input trt $ survt pstat disdur Age priort status;
-datalines;
  10001  72 60  7 69  0 1
  10001 411 70  5 64 10 1
  10001 228 60  3 38  0 1
@@ -150,42 +135,4 @@ datalines;
  21000 231 70 18 67 10 1
  21000 378 80  4 65  0 1
  21000  49 30  3 37  0 1
- ;
-run;
-
-data manip; 
-retain trt ct1 ct2 ct3 ct4;
-set survivalvets(rename=trt=oldtrt);
-*oldtrt = trt;
-/*trt = substr(oldtrt,1,1)*1;
-ct1 = substr(oldtrt,2,1)*1;
-ct2 = substr(oldtrt,3,1)*1;
-ct3 = substr(oldtrt,4,1)*1;
-ct4 = substr(oldtrt,5,1)*1;*/
-array newvar(*) trt ct1 - ct4;
-do i = 1 to dim(newvar);
-	newvar(i) = substr(oldtrt,i,1)*1;
-end;
-drop oldtrt i;
-*keep trt ct1 ct2 ct3 age;
-run;
-
-data survivalVets;
-	set survival.vets;
-run;
-
-proc freq data=survivalVets;
-	table TX;
-run;
-
-proc lifetest data=survivalVets plots=s(test);
-	time survt*status(0);
-	strata ct1;
-run;
-
-proc lifetest data=survivalVets;
-	time survt*status(0);
-	strata ct1;
-run;
-
-
+
