@@ -1,7 +1,7 @@
-*Chapter 4: Practice
-*Importing vets data;
+**Importing vets data;
+
 PROC IMPORT OUT= WORK.DS 
-            DATAFILE= "C:\Users\APETERS4\Documents\GitHub\SurvivalExercises\Andrew\Vets.csv" 
+            DATAFILE= "C:\Users\APETERS4\Documents\GitHub\SurvivalExercises\Vets.csv" 
             DBMS=CSV REPLACE;
      GETNAMES=YES;
      DATAROW=2; 
@@ -10,7 +10,6 @@ RUN;
 proc print;
 run;
 
-*Chapter 4 Practice 1
 *Fitting Full Cox PH Model;
 proc phreg data=ds;
 model survt*status(0)= tx Large Adeno Small perf DisDur age priortx / ties=breslow;
@@ -33,10 +32,71 @@ VAR schtx schLarge schAdeno schSmall schperf schDisDur schage schpriortx;
 with timerank;
 run;
 
-*Chapter 4: Test;
+*Fitting Reduced Cox PH Model;
+proc phreg data=ds;
+model survt*status(0)= tx Small perf DisDur age priortx / ties=breslow;
+OUTPUT out=phtestR RESSCH=schtx  schSmall schperf schDisDur schage schpriortx;
+run;
+
+*Testing PH Assumption for each predictor;
+data EventsOnlyR;
+set phtestR;
+if status=1;
+run;
+
+proc rank data=EventsOnlyR out=RankedR ties=mean;
+var survt;
+ranks timerank;
+run;
+
+proc corr data=RankedR NOSIMPLE;
+VAR schtx schSmall schperf schDisDur schage schpriortx;
+with timerank;
+run;
+
+
+
+*Preparing to stratify by high/low performers;
+data perfHigh;
+set ds;
+if perf>=50 THEN perfHigh=1; ELSE perfHigh=0;
+run;
+
+proc print;
+run;
+
+*Graphing Loglog survival curves, stratified on perfoermance;
+
+ODS GRAPHICS ON;
+proc lifetest data=perfHigh plot=LLS;
+TIME survt*status(0);
+strata perfHigh;
+run;
+ODS GRAPHICS OFF;
+
+/*
+Come back to this
+
+data perfStatus;
+input perfHigh;
+datalines;
+1
+;
+
+
+ODS GRAPHICS ON;
+proc phreg data=perfHigh plots(OVERLAY=ROW)=s;
+model survt*status(0)= tx Large Adeno Small DisDur age priortx perfHigh / ties=breslow;
+strata perfHigh;
+BASELINE COVARIATES=perfStatus;
+run;
+
+ODS GRAPHICS OFF;
+
+*/
 *Importing addicts data;
 PROC IMPORT OUT= WORK.DS2 
-            DATAFILE= "C:\Users\APETERS4\Documents\GitHub\SurvivalExercises\Andrew\Addicts.csv" 
+            DATAFILE= "C:\Users\APETERS4\Documents\GitHub\SurvivalExercises\Addicts.csv" 
             DBMS=CSV REPLACE;
      GETNAMES=YES;
      DATAROW=2; 
@@ -45,7 +105,6 @@ RUN;
 proc print;
 run;
 
-*Chapter 4, Test question 1;
 *Fitting full Cox PH Model;
 proc phreg data=ds2;
 model survt*status(0)= clinic prison dose / ties=breslow;
@@ -68,7 +127,6 @@ VAR schClinic schPrison schDose;
 with AddictsTimerank;
 run;
 
-*Chapter 4, Test question 3;
 *Stratifying on clinic;
 proc phreg data=ds2;
 model survt*status(0)= prison dose / ties=breslow;
@@ -76,15 +134,10 @@ strata clinic;
 run;
 
 *Chapter 5 Practice;
-
-*Chapter 5 Practice question 1 Table 1;
-*Full Model;
 proc phreg data=ds;
 model survt*status(0)= tx Large Adeno Small perf DisDur age priortx / ties=breslow;
 run;
 
-*Chapter 5 Practice question 1 Table 2;
-*Reduced Model;
 proc phreg data=ds;
 model survt*status(0)= tx Small perf DisDur age priortx / ties=breslow;
 OUTPUT out=phtestVetsReduced RESSCH=schtx schSmall schperf schDisDur schage schpriortx;
@@ -106,8 +159,8 @@ VAR schtx schSmall schperf schDisDur schage schpriortx;
 with timerank;
 run;
 
-*Chapter 5 Practice question 3;
-*Stratifying on Small and perStatus Variables;
+*Stratifying;
+
 data VetsWithPerfStatus;
 set ds;
 IF perf>59 THEN perfStatus=1; ELSE perfStatus=0;
@@ -118,8 +171,7 @@ model survt*status(0)= tx DisDur age priortx / ties=breslow;
 STRATA Small perfStatus;
 run;
 
-*Chapter 5 Practice question 10;
-*Lot of interactions with strata;
+*Question 10;
 proc phreg data=VetsWithPerfStatus;
 model survt*status(0) = tx DisDur age priortx 
 						tx*Small DisDur*Small age*Small priortx*Small 
@@ -128,20 +180,18 @@ model survt*status(0) = tx DisDur age priortx
 STRATA Small perfStatus;
 run;
 
-*Chapter 5 Test question 1;
+*Chapter 5 test tables;
+
 proc phreg data=ds2;
 model survt*status(0)= clinic prison dose / ties=breslow;
 run;
 
-
-*Chapter 5 Test question 2;
 proc phreg data=ds2;
 model survt*status(0)= prison dose / ties=breslow;
 strata clinic;
 run;
 
 
-*Chapter 5 Test question 5;
 proc phreg data=ds2;
 model survt*status(0)= prison dose prison*clinic dose*clinic / ties=breslow;
 strata clinic;

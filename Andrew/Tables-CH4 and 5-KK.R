@@ -22,17 +22,6 @@ coxphPractice1Events<-coxph(Surv(dsVetsEvents$survt, dsVetsEvents$status==1)~dsV
 
 cox.zph(coxphPractice1Events, transform="rank")
 
-#Fitting Reduced COX PH Model
-coxphPractice4b<-coxph(Surv(dsVets$survt, dsVets$status==1)~dsVets$tx+dsVets$Small+dsVets$perf+dsVets$DisDur+dsVets$age+dsVets$priortx, ties="breslow")
-coxphPractice4b
-
-cox.zph(coxphPractice4b, transform="rank")
-
-#Adding a predictor that divides subjects in high performance (perf>=50) and low performance (perf<50) groups
-perfHigh<-ifelse(dsVets$perf>=50, 1,0)
-dsVets<-cbind(dsVets, perfHigh)
-
-
 ################################
 #CHAPTER 4: Test
 ################################
@@ -81,16 +70,18 @@ coxphVetsStrata10<-coxph(Surv(dsVets$survt, dsVets$status)~dsVets$tx+dsVets$DisD
 #CHAPTER 5: Test
 ################################
 
+#Question 1:
 coxphTest1<-coxph(Surv(dsAddicts$survt, dsAddicts$status)~dsAddicts$clinic+dsAddicts$prison+dsAddicts$dose, ties="breslow")
 coxphTest1
 
 cox.zph(coxphTest1, transform="rank")
 
+#Question 2:
 coxphTest2<-coxph(Surv(dsAddicts$survt, dsAddicts$status)~dsAddicts$prison+dsAddicts$dose + strata(dsAddicts$clinic), ties="breslow")
 coxphTest2
 
 cox.zph(coxphTest2, transform="rank")
 
-
+#Question 5
 coxphTest5<-coxph(Surv(dsAddicts$survt, dsAddicts$status)~dsAddicts$prison+dsAddicts$dose
                   +dsAddicts$prison*strata(dsAddicts$clinic)+dsAddicts$dose*strata(dsAddicts$clinic), ties="breslow")
