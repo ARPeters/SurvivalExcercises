@@ -12,10 +12,18 @@ names(dsVets)<-c("tx", "Large", "Adeno", "Small", "Squamous", "survt", "perf", "
 #Fitting full COX PH Model
 coxphPractice1<-coxph(Surv(dsVets$survt, dsVets$status==1)~dsVets$tx+dsVets$Large+dsVets$Adeno+dsVets$Small+dsVets$perf+dsVets$DisDur+dsVets$age+dsVets$priortx, ties="breslow")
 coxphPractice1
+str(coxphPractice1)
 
 #Testing PH Assumption for each predictor
 
-cox.zph(coxphPractice1)
+zphRes <- cox.zph(coxphPractice1, transform="rank")
+
+#To recreate the table results from K&K, you need to use the "unscaled" Schoenfield residuals as demonstrated below
+scaledRes <- residuals(coxphPractice1,type="scaledsch")
+unscaledRes <- residuals(coxphPractice1,type="schoenfeld")
+cbind(oldRes,newRes)
+cbind(zphRes$y[,1],scaledRes[,1],unscaledRes[,1])
+apply(unscaledRes,2,function(z) { summary(lm(zphRes$x~z))$coefficients[2,4] } )
 
 dsVetsEvents<-dsVets[dsVets$status==1,]
 coxphPractice1Events<-coxph(Surv(dsVetsEvents$survt, dsVetsEvents$status==1)~dsVetsEvents$tx+dsVetsEvents$Large+dsVetsEvents$Adeno+dsVetsEvents$Small+dsVetsEvents$perf+dsVetsEvents$DisDur+dsVetsEvents$age+dsVetsEvents$priortx, ties="breslow")
