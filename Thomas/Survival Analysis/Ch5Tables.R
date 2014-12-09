@@ -56,12 +56,14 @@ summary(Ch5Practice3)
 
 
 Ch5Practice10 <- coxph(Surv(SurvivalTime, Status==1) ~ Treatment + DiseaseDuration + Age + PriorTherapy + 
-                         DiseaseDuration*Z1 + Age*Z1 + PriorTherapy*Z1 + 
-                         DiseaseDuration*Z2 + Age*Z2 + PriorTherapy*Z2 + 
-                         DiseaseDuration*Z1*Z2 + Age*Z1*Z2 + PriorTherapy*Z1*Z2 + 
-                         Treatment*Z1 + Treatment*Z1 + Treatment*Z1*Z2 + 
+                         DiseaseDuration:Z1 + Age:Z1 + PriorTherapy:Z1 + 
+                         DiseaseDuration:Z2 + Age:Z2 + PriorTherapy:Z2 + 
+                         DiseaseDuration:Z1:Z2 + Age:Z1:Z2 + PriorTherapy:Z1:Z2 + 
+                         Treatment:Z1 + Treatment:Z1 + Treatment:Z1:Z2 + 
                          strata(Z1, Z2), data = dsVets, ties="breslow")
 summary(Ch5Practice10)
+
+cor(dsVets[,c()])
 
 
 
