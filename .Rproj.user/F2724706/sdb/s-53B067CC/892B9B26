@@ -1,0 +1,22 @@
+{
+    "contents" : "",
+    "created" : 1417534321619.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "892B9B26",
+    "lastKnownWriteTime" : 7741240722073845761,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "caption" : "dsVets",
+        "contentUrl" : "content?title=dsVets&file=22be3d501b534e0b848e197a001efb43.htm",
+        "displayedObservations" : "137",
+        "displayedVariables" : 11,
+        "totalObservations" : "137",
+        "variables" : "11"
+    },
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}

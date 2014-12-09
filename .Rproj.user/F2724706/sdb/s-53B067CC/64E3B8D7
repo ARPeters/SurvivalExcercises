@@ -1,0 +1,16 @@
+{
+    "contents" : "library(survival)\nlibrary(foreign)\n\n################################\n#Ch 4 Practice Questions\n################################\n\n#Read vets dataset\n#File Layout\n# Column 1: Treatment (standard = 1, test = 2)\n# Column 2: Cell type 1 (large = 1, other = 0)\n# Column 3: Cell type 2 (adeno = 1, other = 0)\n# Column 4: Cell type 3 (small = 1, other = 0)\n# Column 5: Cell type 4 (squamous = 1, other = 0)\n# Column 6: Survival time (days)\n# Column 7: Performance status (0 = worst, ..., 100 = best)\n# Column 8: disease duration (months)\n# Column 9: Age\n# Column 10: Prior therapy (none = 0, some = 10)\n# Column 11: Status (0 = censored, 1 = died)\n\ndsVets <- read.dta(\"http://web1.sph.emory.edu/dkleinb/allDatasets/surv2datasets/vets.dta\")\n\n\nnames(dsVets)<-c(\"Treatment\", \"LargeCell\", \"AdenoCell\", \"SmallCell\", \"SquamousCell\", \"SurvivalTime\", \"PerformanceStatus\", \n                 \"DiseaseDuration\", \"Age\", \"PriorTherapy\", \"Status\")\n\n###Question:  How do you make a variable \"readable\" with a space in the variable name:\n###           i.e. dsVets$Survival Time versus dsVets$SurvivalTime\n\n#Practice Question 3\n\n\nCh4Practice3 <- coxph(Surv(dsVets$SurvivalTime, dsVets$Status==1) ~ dsVets$Treatment + dsVets$LargeCell + dsVets$AdenoCell + \n                        dsVets$SmallCell + dsVets$PerformanceStatus + dsVets$DiseaseDuration + dsVets$Age + dsVets$PriorTherapy, ties=\"breslow\")\nsummary(Ch4Practice3)\n\n\n\n\n\n#Testing PH \n\ncox.zph(Ch4Practice3, transform= \"rank\")\n\n#\n################################\n#Ch 4 Test Questions\n################################\n\n#Read vets dataset\n#File Layout\n# Column 1: Subject ID\n# Column 2: Clinic (1 or 2)\n# Column 3: Survival Status (0 = censored, 1 = departed from clinic)\n# Column 4: Survival time (days)\n# Column 5: Prison record ( 0 = none, 1 = any)\n# Column 6: Maximum methadone dose (mg/day)\n\n\ndsAddicts<- read.dta(\"http://web1.sph.emory.edu/dkleinb/allDatasets/surv2datasets/addicts.dta\")\n\nnames(dsAddicts)<-c(\"Subject\", \"Clinic\", \"Status\", \"SurvivalTime\", \"Prison\", \"Dose\")\n\n#Test Question 1\nCh4Test1 <- coxph(Surv(dsAddicts$SurvivalTime, dsAddicts$Status==1) ~ dsAddicts$Clinic + dsAddicts$Prison + dsAddicts$Dose, ties=\"breslow\")\n\nsummary(Ch4Test1)\n\n",
+    "created" : 1417534227190.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "859048543",
+    "id" : "64E3B8D7",
+    "lastKnownWriteTime" : 1417556058,
+    "path" : "~/GitHub/SurvivalExercises/Thomas/Survival Analysis/Ch4Tables.R",
+    "project_path" : "Thomas/Survival Analysis/Ch4Tables.R",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
