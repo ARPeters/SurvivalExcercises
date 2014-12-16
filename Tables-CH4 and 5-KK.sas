@@ -33,6 +33,18 @@ VAR schtx schLarge schAdeno schSmall schperf schDisDur schage schpriortx;
 with timerank;
 run;
 
+
+proc phreg data=ds;
+model survt*status(0)= tx Large Adeno Small perf DisDur age priortx / ties=breslow;
+run;
+
+
+*Approximating a piecewise exponential model with Bayes estimation;
+proc phreg data=ds;
+model survt*status(0)= tx Large Adeno Small perf DisDur age priortx / ties=breslow;
+BAYES PIECEWISE NBI=0 NMC=1;
+run;
+
 *Chapter 4: Test;
 *Importing addicts data;
 PROC IMPORT OUT= WORK.DS2 
@@ -68,12 +80,22 @@ VAR schClinic schPrison schDose;
 with AddictsTimerank;
 run;
 
+*Estimating piecewise exponential model with Bayes estimate;
+proc phreg data=ds2;
+model survt*status(0)= clinic prison dose / ties=breslow;
+BAYES PIECEWISE NBI=0 NMC=1;
+run;
+
+
+
 *Chapter 4, Test question 3;
 *Stratifying on clinic;
 proc phreg data=ds2;
 model survt*status(0)= prison dose / ties=breslow;
 strata clinic;
 run;
+
+*Cannont estimate piecewise exponential model with strata using BAYES statement;
 
 *Chapter 5 Practice;
 
@@ -106,6 +128,13 @@ VAR schtx schSmall schperf schDisDur schage schpriortx;
 with timerank;
 run;
 
+*Approximating exponential piecewise model with BAYES statement;
+proc phreg data=ds;
+model survt*status(0)= tx Small perf DisDur age priortx / ties=breslow;
+BAYES PIECEWISE NBI=0 NMC=1;
+run;
+
+
 *Chapter 5 Practice question 3;
 *Stratifying on Small and perStatus Variables;
 data VetsWithPerfStatus;
@@ -131,6 +160,13 @@ run;
 *Chapter 5 Test question 1;
 proc phreg data=ds2;
 model survt*status(0)= clinic prison dose / ties=breslow;
+run;
+
+
+*Approximating exponential piecewise model with BAYES statement;
+proc phreg data=ds2;
+model survt*status(0)= clinic prison dose / ties=breslow;
+BAYES PIECEWISE NBI=0 NMC=1;
 run;
 
 
