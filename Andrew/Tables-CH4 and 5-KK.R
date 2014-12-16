@@ -33,6 +33,8 @@ dsAddicts<- read.dta("http://web1.sph.emory.edu/dkleinb/allDatasets/surv2dataset
 coxphTest1<-coxph(Surv(dsAddicts$survt, dsAddicts$status==1)~dsAddicts$clinic+dsAddicts$prison+dsAddicts$dose, ties="breslow")
 coxphTest1
 
+cox.zph(coxphTest1)
+
 #Testing PH Assumption for each predictor
 dsAddictsEvents<-dsAddicts[dsAddicts$status==1,]
 coxphTest1Events<-coxph(Surv(dsAddictsEvents$survt, dsAddictsEvents$status==1)~dsAddictsEvents$clinic+dsAddictsEvents$prison+dsAddictsEvents$dose, ties="breslow")
@@ -66,6 +68,14 @@ coxphVetsStrata10<-coxph(Surv(dsVets$survt, dsVets$status)~dsVets$tx+dsVets$DisD
                            dsVets$tx*strata(dsVets$Small, dsVets$perfStatus)+dsVets$DisDur*strata(dsVets$Small, dsVets$perfStatus)+dsVets$age*strata(dsVets$Small, dsVets$perfStatus)+dsVets$priortx*strata(dsVets$Small, dsVets$perfStatus)
                          , ties="breslow")
 
+coxphVetsStrata10<-coxph(Surv(dsVets$survt, dsVets$status)~
+                           dsVets$tx*strata(dsVets$Small, dsVets$perfStatus)+dsVets$DisDur*strata(dsVets$Small, dsVets$perfStatus)+dsVets$age*strata(dsVets$Small, dsVets$perfStatus)+dsVets$priortx*strata(dsVets$Small, dsVets$perfStatus)
+                         , ties="breslow")
+
+summary(coxphVetsStrata10)
+
+plot(coxphVetsStrata10)
+
 ################################
 #CHAPTER 5: Test
 ################################
@@ -85,3 +95,7 @@ cox.zph(coxphTest2, transform="rank")
 #Question 5
 coxphTest5<-coxph(Surv(dsAddicts$survt, dsAddicts$status)~dsAddicts$prison+dsAddicts$dose
                   +dsAddicts$prison*strata(dsAddicts$clinic)+dsAddicts$dose*strata(dsAddicts$clinic), ties="breslow")
+
+aov(coxphTest2, coxphTest5)
+?qchisq()
+pchisq(1.88, df=2, lower.tail=FALSE)
