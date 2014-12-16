@@ -63,7 +63,50 @@ dsAddicts<- read.dta("http://web1.sph.emory.edu/dkleinb/allDatasets/surv2dataset
 names(dsAddicts)<-c("Subject", "Clinic", "Status", "SurvivalTime", "Prison", "Dose")
 
 #Test Question 1
-Ch4Test1 <- coxph(Surv(dsAddicts$SurvivalTime, dsAddicts$Status==1) ~ dsAddicts$Clinic + dsAddicts$Prison + dsAddicts$Dose, ties="breslow")
+Ch4Test1 <- coxph(Surv(SurvivalTime, Status) ~ Clinic + Prison + Dose, ties="breslow", data=dsAddicts)
 
 summary(Ch4Test1)
+
+
+Ch4Test1Poisson <- glm(Status ~ Clinic + Prison + Dose + offset(log(SurvivalTime)), (family=poisson), data=dsAddicts)
+
+
+summary(Ch4Test1Poisson)
+
+
+
+
+
+
+Ch4Test1Poisson <- glm(SurvivalTime ~ Clinic + Prison + Dose + offset(log(Dose)), (family=poisson), data=dsAddicts)
+
+
+summary(Ch4Test1Poisson)
+
+
+Ch4Test1Poisson <- glm(SurvivalTime ~ Clinic + Prison + Dose, (family=poisson), data=dsAddicts)
+
+
+summary(Ch4Test1Poisson)
+
+
+#Test Question 1
+Ch4Test1 <- coxph(Surv(SurvivalTime, Status==1) ~ Clinic, ties="breslow", data=dsAddicts)
+
+summary(Ch4Test1)
+
+
+
+
+Ch4Test1Poisson <- glm(SurvivalTime ~ offset(log(Clinic)), (family=poisson), data=dsAddicts)
+
+
+summary(Ch4Test1Poisson)
+
+
+
+
+
+
+
 
