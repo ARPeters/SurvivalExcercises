@@ -69,46 +69,42 @@ summary(Ch4Test1)
 
 
 Ch4Test1Poisson <- glm(Status ~ Clinic + Prison + Dose + offset(log(SurvivalTime)), (family=poisson), data=dsAddicts)
-
-
 summary(Ch4Test1Poisson)
 
-dsAddictsNew <- dsAddicts[!duplicated(dsAddicts$SurvivalTime),]
+#dsAddictsOrd <- dsAddicts[order(dsAddicts$SurvivalTime,-dsAddicts$Status),]
+#dsAddictsNew <- dsAddictsOrd[!duplicated(dsAddictsOrd$SurvivalTime),]
 
 eventTimes <- unique(dsAddicts$SurvivalTime[dsAddicts$Status==1])
 eventTimes <- eventTimes[order(eventTimes)]
 
 require(plyr)
 
-createPTable <- function(d){   
+createPTable <- function(d){  
   dNew <- d
   for(i in 1:length(eventTimes)){
     dNew[i,] <- d
     dNew[i,"r"] <- i
     dNew[i,"tr"] <- eventTimes[i]
-    dNew[i,"dir"] <- ifelse(i==1,eventTimes[i],eventTimes[i]-eventTimes[i-1])
+    dNew[i,"dir"] <- ifelse(i==1,min(d$SurvivalTime,eventTimes[i]),min(d$SurvivalTime,eventTimes[i]) - eventTimes[i-1])
     dNew[i,"yir"] <- 0
-    if(d$SurvivalTime %in% eventTimes[i] & d$Status %in% 1) {
-      dNew[i,"yir"] <- 1
+    if(d$SurvivalTime <= eventTimes[i]) {
+      if(d$Status %in% 1) dNew[i,"yir"] <- 1
       break      
     }      
   }    
   return(dNew)
 }
 
-ptProcessDat <- ddply(.data=dsAddictsNew,.variables=.(Subject),.fun = createPTable)
+ptProcessDat <- ddply(.data=dsAddicts,.variables=.(Subject),.fun = createPTable)
+ptProcessDat[ptProcessDat$Subject %in% c(166,111),]
 dim(ptProcessDat)
 colnames(dsAddicts)
 
-Ch4Test1PoissonNew <- glm(yir ~ I(as.factor(r)) + Clinic - 1 + offset(I(log(dir))), (family=poisson), data=ptProcessDat)
-#+ Prison + Dose 
+#The counting process version of a Cox regression model
+Ch4Test1PoissonNew <- glm(yir ~ I(as.factor(r)) + Clinic + Prison + Dose + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessDat)
 summary(Ch4Test1PoissonNew)
-
-Ch4Test1b <- coxph(Surv(SurvivalTime, Status) ~ Clinic, ties="breslow", data=dsAddictsNew) #Clinic + Prison + Dose
-
-summary(Ch4Test1b)
-
-
+#compare to the coxph output
+summary(Ch4Test1Poisson)
 
 
 Ch4Test1Poisson <- glm(SurvivalTime ~ Clinic + Prison + Dose + offset(log(Dose)), (family=poisson), data=dsAddicts)
