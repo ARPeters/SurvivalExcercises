@@ -1,7 +1,7 @@
 library(survival)
 library(foreign)
 
-
+rm(list=ls(all=TRUE))
 ################################
 #CHAPTER 5: Practice
 ################################
@@ -25,6 +25,14 @@ dsVets <- read.dta("http://web1.sph.emory.edu/dkleinb/allDatasets/surv2datasets/
 
 names(dsVets)<-c("Treatment", "LargeCell", "AdenoCell", "SmallCell", "SquamousCell", "SurvivalTime", "PerformanceStatus", 
                  "DiseaseDuration", "Age", "PriorTherapy", "Status")
+
+
+#adding a subject ID variable for dsVets
+
+numrows <- nrow(dsVets)
+
+dsVets$Subject <- c(1:numrows)
+
 
 ###Question:  How do you make a variable "readable" with a space in the variable name:
 ###           i.e. dsVets$Survival Time versus dsVets$SurvivalTime
@@ -52,6 +60,58 @@ dsVets$Z2 <- ifelse(dsVets$PerformanceStatus > 59, 1, 0)
 
 Ch5Practice3 <- coxph(Surv(SurvivalTime, Status==1) ~ Treatment + DiseaseDuration + Age + PriorTherapy + strata(Z1, Z2), data = dsVets, ties="breslow")
 summary(Ch5Practice3)
+
+Ch5Practice3a <- coxph(Surv(SurvivalTime, Status) ~ Treatment + DiseaseDuration + Age + PriorTherapy + strata(Z1), data = dsVets, ties="breslow")
+summary(Ch5Practice3a)
+
+
+
+
+#GLM Procedure
+eventTimes <- unique(dsVets$SurvivalTime[dsVets$Status==1])
+eventTimes <- eventTimes[order(eventTimes)]
+
+require(plyr)
+
+createPTable <- function(d){  
+  dNew <- d
+  for(i in 1:length(eventTimes)){
+    dNew[i,] <- d
+    dNew[i,"r"] <- i
+    dNew[i,"tr"] <- eventTimes[i]
+    dNew[i,"dir"] <- ifelse(i==1,min(d$SurvivalTime,eventTimes[i]),min(d$SurvivalTime,eventTimes[i]) - eventTimes[i-1])
+    dNew[i,"yir"] <- 0
+    if(d$SurvivalTime <= eventTimes[i]) {
+      if(d$Status %in% 1) dNew[i,"yir"] <- 1
+      break      
+    }      
+  }    
+  return(dNew)
+}
+
+ptProcessDat <- ddply(.data=dsVets,.variables=.(Subject),.fun = createPTable)
+ptProcessDat[ptProcessDat$Subject %in% c(166,111),]
+dim(ptProcessDat)
+colnames(dsVets)
+
+#The counting process version of a Cox regression model
+Ch5Practice3PoissonNew <- glm(yir ~ I(as.factor(r)) + Treatment + DiseaseDuration + Age + PriorTherapy + strata(Z1) + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessDat)
+summary(Ch5Practice3PoissonNew)
+
+summary(Ch5Practice3a)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -104,7 +104,10 @@ colnames(dsAddicts)
 Ch4Test1PoissonNew <- glm(yir ~ I(as.factor(r)) + Clinic + Prison + Dose + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessDat)
 summary(Ch4Test1PoissonNew)
 #compare to the coxph output
-summary(Ch4Test1Poisson)
+summary(Ch4Test1)
+
+
+
 
 
 Ch4Test1Poisson <- glm(SurvivalTime ~ Clinic + Prison + Dose + offset(log(Dose)), (family=poisson), data=dsAddicts)
