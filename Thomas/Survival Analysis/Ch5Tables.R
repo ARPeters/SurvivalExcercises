@@ -68,12 +68,17 @@ summary(Ch5Practice3a)
 
 
 #GLM Procedure
-eventTimes <- unique(dsVets$SurvivalTime[dsVets$Status==1])
-eventTimes <- eventTimes[order(eventTimes)]
-
 require(plyr)
 
-createPTable <- function(d){  
+createEventTimes <- function(d){
+	eventTimes <- unique(d$SurvivalTime[d$Status==1])
+	eventTimes <- eventTimes[order(eventTimes)]
+	return(eventTimes)
+}
+
+createPTable <- function(d){
+  eventTimes <- createEventTimes(dsVets[dsVets$Z1 %in% unique(d$Z1),])
+  #eventTimes <- createEventTimes(dsVets)
   dNew <- d
   for(i in 1:length(eventTimes)){
     dNew[i,] <- d
@@ -89,39 +94,44 @@ createPTable <- function(d){
   return(dNew)
 }
 
-ptProcessDat <- ddply(.data=dsVets,.variables=.(Subject),.fun = createPTable)
-ptProcessDat[ptProcessDat$Subject %in% c(166,111),]
-dim(ptProcessDat)
+ctProcessDat <- ddply(.data=dsVets,.variables=.(Subject,Z1,Z2),.fun = createPTable)
+ctProcessDat[ctProcessDat$Subject %in% c(166,111),]
+max(ctProcessDat$r)
+ctProcessDat$rNew <- paste0(ctProcessDat$r,ctProcessDat$Z1,ctProcessDat$Z2)
+dim(ctProcessDat)
 colnames(dsVets)
+table(ctProcessDat$rNew)
 
 #The counting process version of a Cox regression model
-Ch5Practice3PoissonNew <- glm(yir ~ I(as.factor(r)) + Treatment + DiseaseDuration + Age + PriorTherapy + strata(Z1) + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessDat)
-summary(Ch5Practice3PoissonNew)
+#Ch5Practice3PoissonNewA <- glm(yir ~ I(as.factor(r)):strata(Z1) + Treatment + DiseaseDuration + Age + PriorTherapy + offset(I(log(dir))), family=poisson(link = "log"), data=ctProcessDat)
+Ch5Practice3PoissonNewB <- glm(yir ~ I(as.factor(rNew)) + Treatment + DiseaseDuration + Age + PriorTherapy + offset(I(log(dir))), family=poisson(link = "log"), data=ctProcessDat)
+summary(Ch5Practice3PoissonNewB)
 
-summary(Ch5Practice3a)
+summary(Ch5Practice3)$coefficients[,c(1,3:5)]
+#summary(Ch5Practice3PoissonNewA)$coefficients[2:5,]
+summary(Ch5Practice3PoissonNewB)$coefficients[(nrow(summary(Ch5Practice3PoissonNewB)$coefficients)-3):nrow(summary(Ch5Practice3PoissonNewB)$coefficients),]
 
-
-
-
-
-
-
+#ctProcessDat[order(ctProcessDat$r,ctProcessDat$Z1,ctProcessDat$Subject),c("Subject","Z1","r")][1:200,]
 
 
 
 
-
-
-
-
-
-Ch5Practice10 <- coxph(Surv(SurvivalTime, Status==1) ~ Treatment + DiseaseDuration + Age + PriorTherapy + 
-                         DiseaseDuration:Z1 + Age:Z1 + PriorTherapy:Z1 + 
-                         DiseaseDuration:Z2 + Age:Z2 + PriorTherapy:Z2 + 
-                         DiseaseDuration:Z1:Z2 + Age:Z1:Z2 + PriorTherapy:Z1:Z2 + 
-                         Treatment:Z1 + Treatment:Z1 + Treatment:Z1:Z2 + 
-                         strata(Z1, Z2), data = dsVets, ties="breslow")
+#Ch5Practice10 <- coxph(Surv(SurvivalTime, Status==1) ~ Treatment + DiseaseDuration + Age + PriorTherapy + 
+#                         DiseaseDuration:Z1 + Age:Z1 + PriorTherapy:Z1 + 
+#                         DiseaseDuration:Z2 + Age:Z2 + PriorTherapy:Z2 + 
+#                         DiseaseDuration:Z1:Z2 + Age:Z1:Z2 + PriorTherapy:Z1:Z2 + 
+#                         Treatment:Z1 + Treatment:Z1 + Treatment:Z1:Z2 + 
+#                         strata(Z1, Z2), data = dsVets, ties="breslow")
+Ch5Practice10 <- coxph(Surv(SurvivalTime, Status==1) ~ Treatment*strata(Z1,Z2) + DiseaseDuration*strata(Z1,Z2) + Age*strata(Z1,Z2) + PriorTherapy*strata(Z1,Z2), 
+		data = dsVets, ties="breslow")
 summary(Ch5Practice10)
+
+Ch5Practice10PoissonNew <- glm(yir ~ I(as.factor(rNew)) + Treatment + DiseaseDuration + Age + PriorTherapy + offset(I(log(dir))) +
+				+ Treatment:Z1 + DiseaseDuration:Z1 + Age:Z1 + PriorTherapy:Z1 +
+				+ Treatment:Z2 + DiseaseDuration:Z2 + Age:Z2 + PriorTherapy:Z2 +
+				+ Treatment:Z1:Z2 + DiseaseDuration:Z1:Z2 + Age:Z1:Z2 + PriorTherapy:Z1:Z2, family=poisson(link = "log"), data=ctProcessDat)
+summary(Ch5Practice10PoissonNew)
+
 
 cor(dsVets[,c()])
 
