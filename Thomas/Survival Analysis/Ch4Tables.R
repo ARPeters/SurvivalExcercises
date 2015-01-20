@@ -69,6 +69,7 @@ summary(Ch4Test1)
 
 
 Ch4Test1Poisson <- glm(Status ~ Clinic + Prison + Dose + offset(log(SurvivalTime)), (family=poisson), data=dsAddicts)
+
 summary(Ch4Test1Poisson)
 
 #dsAddictsOrd <- dsAddicts[order(dsAddicts$SurvivalTime,-dsAddicts$Status),]
