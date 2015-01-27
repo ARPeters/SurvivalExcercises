@@ -1,5 +1,6 @@
 library(survival)
 library(foreign)
+setwd("~/GitHub")
 
 ###########################################################################
 #KK Chapter 6: Practice Questions
@@ -17,7 +18,6 @@ library(foreign)
 #Column 3 = sex (1=male, 0=female)
 #Column 4 = log WBC
 #Column 5 = Rx (1=placebo, 0=treatment)
-
 
 dsAnderson<-read.csv("./SurvivalExercises/Andrew/dsAnderson.csv")
 colnames(dsAnderson)<-c("subject", "survt", "status", "sex", "logWBC", "rx")
@@ -100,10 +100,10 @@ for(i in 1:length(ptProcessAnderson$tr)){
   Int2[i]<-ifelse(ptProcessAnderson$tr[i]>=15, ptProcessAnderson$sex[i]*1, 0)
 }
 
-
+head(ptProcessAnderson)
 ptProcessAnderson<-cbind(ptProcessAnderson, as.integer(unlist(Int1)), as.integer(unlist(Int2)))
 colnames(ptProcessAnderson)<-c("subject", "survt", "status", "sex", "logWBC", "rx","r", "tr", "dir", "yir", "Int1", "Int2")
-poissonAnderson1<-glm(yir ~ I(as.factor(r)) + logWBC + rx + Int1 + Int2 + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessAnderson)
+poissonAndersos5<-glm(yir ~ I(as.factor(r)) + logWBC + rx + Int1 + Int2 + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessAnderson)
 
 #   Using the above computer results, carry out a test of hypothesis,
 #   estimate the hazard ratio, and obtain 95% confidence
@@ -134,7 +134,11 @@ poissonAnderson1<-glm(yir ~ I(as.factor(r)) + logWBC + rx + Int1 + Int2 + offset
 #   At t=8 weeks:  hr(sex)= exp(B1(sex)+8*epsilon(sex))
 #   At t=16 weeks: hr(sex)= exp(B1(sex)+16*epsilon(sex))
 
-#8) Based on the above results, describe the hazard ratio estimate
+#8)
+poissonAnderson8<-glm(yir ~ I(as.factor(r)) + sex + logWBC + rx + sex*tr + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessAnderson)
+#coxphAnderson8<-coxph(Surv(ptProcessAnderson$tr, ptProcessAnderson$yir)~sex + logWBC + rx + sex*tr, data=ptProcessAnderson)
+
+#   Based on the above results, describe the hazard ratio estimate
 #   for the treatment effect adjusted for the other variables in the
 #   model, and summarize the results of the significance test and
 #   interval estimate for this hazard ratio. How do these results
@@ -151,7 +155,14 @@ poissonAnderson1<-glm(yir ~ I(as.factor(r)) + logWBC + rx + Int1 + Int2 + offset
 #   This suggests that the selection of a time function can change the characteristics of the model; care must be taken to select
 #   a time function that is appropriate to the study. 
 
-#9) The following gives an edited printout of computer results
+#9) 
+
+
+poissonAnderson9<-glm(yir ~ I(as.factor(r)) + logWBC + rx + strata(sex) + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessAnderson)
+#coxAnderson9<-coxph(Surv(ptProcessAnderson$tr, ptProcessAnderson$yir)~logWBC + rx + strata(sex), data=ptProcessAnderson)
+
+
+#   The following gives an edited printout of computer results
 #   using a stratified Cox procedure that stratifies on the Sex
 #   variable but keeps Rx and log WBC in the model.Compare the 
 #   results of the above printout with previously
@@ -185,7 +196,8 @@ poissonAnderson1<-glm(yir ~ I(as.factor(r)) + logWBC + rx + Int1 + Int2 + offset
 #  Column 3 = survival time (days)
 
 dsChemo<-read.csv("./SurvivalExercises/Andrew/dsChemo.csv")
-colnames(dsChemo)<-c("rx", "status", "survt")
+colnames(dsChemo)<-c("subject", "rx", "status", "survt")
+
 
 
 #1) A plot of the log-log Kaplan-Meier curves for each
@@ -197,7 +209,6 @@ colnames(dsChemo)<-c("rx", "status", "survt")
 
 scurveChemo<-survfit(Surv(survt, status==1)~rx, data=dsChemo)
 summary(scurveChemo)
-
 plot(scurveChemo)
 
 
@@ -219,7 +230,60 @@ cox.zph(ChemoPh, transform="rank")
 #   Still, the PH assumption seems to have been violated. The schoenfield residuals of the treatment variable show
 #   a significant correlation with time, that is unlikely to be the result of chance, p(PH)=0.00105
 
-#3) The following printout shows the results from using a
+#3) 
+
+eventTimes <- unique(dsChemo$survt[dsChemo$status==1])
+eventTimes <- eventTimes[order(eventTimes)]
+
+createPTable <- function(d){  
+  dNew <- d
+  for(i in 1:length(eventTimes)){
+    dNew[i,] <- d
+    dNew[i,"r"] <- i
+    dNew[i,"tr"] <- eventTimes[i]
+    dNew[i,"dir"] <- ifelse(i==1,min(d$survt,eventTimes[i]),min(d$survt,eventTimes[i]) - eventTimes[i-1])
+    dNew[i,"yir"] <- 0
+    if(d$survt <= eventTimes[i]) {
+      if(d$status %in% 1) dNew[i,"yir"] <- 1
+      break      
+    }      
+  }    
+  return(dNew)
+}
+
+ptProcessChemo <- ddply(.data=dsChemo,.variables=.(subject),.fun = createPTable)
+head(ptProcessChemo)
+
+Tx1<-list()
+length(Tx1)<-length(ptProcessChemo$yir)
+
+for(i in 1:length(ptProcessChemo$rx)){
+  Tx1[i]<-ifelse(ptProcessChemo$tr[i]<250, ptProcessChemo$rx*1, 0)
+}
+
+Tx2<-list()
+length(Tx2)<-length(ptProcessChemo$yir)
+
+
+for(i in 1:length(ptProcessChemo$rx)){
+  Tx2[i]<-ifelse(250<=ptProcessChemo$tr[i] & ptProcessChemo$tr[i]<500, ptProcessChemo$rx*1, 0)
+}
+
+Tx3<-list()
+length(Tx3)<-length(ptProcessChemo$yir)
+
+
+for(i in 1:length(ptProcessChemo$rx)){
+  Tx3[i]<-ifelse(ptProcessChemo$tr[i]>=500, ptProcessChemo$rx*1, 0)
+}
+
+ptProcessChemo<-cbind(ptProcessChemo, as.numeric(unlist(Tx1)),  as.numeric(unlist(Tx2)),  as.numeric(unlist(Tx3)))
+colnames(ptProcessChemo)<-c("subject", "rx", "status", "survt", "r", "tr", "dir", "yir","Time1", "Time2", "Time3")
+head(ptProcessChemo)
+
+poissonChemo3<-glm(yir ~ I(as.factor(r)) + Time1 + Time2 + Time3 + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessChemo)
+
+#   The following printout shows the results from using a
 #   heaviside function approach with an extended Cox model
 #   to fit these data. The model used product terms of the
 #   treatment variable (Tx) with each of three heaviside functions.
@@ -283,6 +347,30 @@ cox.zph(ChemoPh, transform="rank")
 #   for each hazard ratio, and draw conclusions about the
 #   treatment effect within each time interval.
 #   Time-Dependent Cox Regression Analysis
+
+
+Time1_2<-list()
+length(Time1_2)<-length(ptProcessChemo$yir)
+
+
+for(i in 1:length(ptProcessChemo$rx)){
+  Time1_2[i]<-ifelse(ptProcessChemo$tr[i]<250, ptProcessChemo$rx*1, 0)
+}
+
+Time2_2<-list()
+length(Time2_2)<-length(ptProcessChemo$yir)
+
+
+for(i in 1:length(ptProcessChemo$rx)){
+  Time2_2[i]<-ifelse(ptProcessChemo$tr[i]>=250, ptProcessChemo$rx*1, 0)
+
+}
+
+ptProcessChemo<-cbind(ptProcessChemo, as.numeric(unlist(Time1_2)),  as.numeric(unlist(Time2_2)))
+head(ptProcessChemo)
+colnames(ptProcessChemo)<-c("subject", "rx", "status", "survt", "r", "tr", "dir", "yir","Time1", "Time2", "Time3", "Time1_2", "Time2_2")
+
+poissonChemo6<-glm(yir ~ I(as.factor(r)) + Time1_2 + Time2_2 + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessChemo)
 
 #   For the first time interval, the hazard ratio associated with the treatment variable
 #   is 0.221, p=0.001. This is relatively unchanged from the model that contained three time intervals. 
