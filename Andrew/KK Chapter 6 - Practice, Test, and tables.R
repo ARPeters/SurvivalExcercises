@@ -122,7 +122,7 @@ poissonAndersos5<-glm(yir ~ I(as.factor(r)) + logWBC + rx + Int1 + Int2 + offset
 #   curves over time.
 #   For the situation just described, write down the extended Cox
 #   model, which contains Rx, log WBC, and Sex as main effects
-#   plus the product term sex × time.
+#   plus the product term sex ? time.
 
 #   h(t, X(t))= h-null(t)exp(B1(sex)+B2(logWBC)+B3(rx)+epsilon1(sex*t)
 
@@ -135,7 +135,8 @@ poissonAndersos5<-glm(yir ~ I(as.factor(r)) + logWBC + rx + Int1 + Int2 + offset
 #   At t=16 weeks: hr(sex)= exp(B1(sex)+16*epsilon(sex))
 
 #8)
-poissonAnderson8<-glm(yir ~ I(as.factor(r)) + sex + logWBC + rx + sex*tr + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessAnderson)
+poissonAnderson8<-glm(yir ~ I(as.factor(r)) + sex + logWBC + rx + sex:tr + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessAnderson)
+summary(poissonAnderson8)
 #coxphAnderson8<-coxph(Surv(ptProcessAnderson$tr, ptProcessAnderson$yir)~sex + logWBC + rx + sex*tr, data=ptProcessAnderson)
 
 #   Based on the above results, describe the hazard ratio estimate
@@ -254,34 +255,39 @@ createPTable <- function(d){
 ptProcessChemo <- ddply(.data=dsChemo,.variables=.(subject),.fun = createPTable)
 head(ptProcessChemo)
 
-Tx1<-list()
-length(Tx1)<-length(ptProcessChemo$yir)
+# Tx1<-list()
+# length(Tx1)<-length(ptProcessChemo$yir)
+# 
+# for(i in 1:length(ptProcessChemo$rx)){
+#   Tx1[i]<-ifelse(ptProcessChemo$tr[i]<250, ptProcessChemo$rx[i]*1, 0)
+# }
+# 
+# Tx2<-list()
+# length(Tx2)<-length(ptProcessChemo$yir)
+# 
+# 
+# for(i in 1:length(ptProcessChemo$rx)){
+#   Tx2[i]<-ifelse(250<=ptProcessChemo$tr[i] & ptProcessChemo$tr[i]<500, ptProcessChemo$rx[i]*1, 0)
+# }
+# 
+# Tx3<-list()
+# length(Tx3)<-length(ptProcessChemo$yir)
+# 
+# 
+# for(i in 1:length(ptProcessChemo$rx)){
+#   Tx3[i]<-ifelse(ptProcessChemo$tr[i]>=500, ptProcessChemo$rx[i]*1, 0)
+# }
+# 
+# ptProcessChemo<-cbind(ptProcessChemo, as.numeric(unlist(Tx1)),  as.numeric(unlist(Tx2)),  as.numeric(unlist(Tx3)))
+# colnames(ptProcessChemo)<-c("subject", "rx", "status", "survt", "r", "tr", "dir", "yir","Time1", "Time2", "Time3")
 
-for(i in 1:length(ptProcessChemo$rx)){
-  Tx1[i]<-ifelse(ptProcessChemo$tr[i]<250, ptProcessChemo$rx*1, 0)
-}
-
-Tx2<-list()
-length(Tx2)<-length(ptProcessChemo$yir)
-
-
-for(i in 1:length(ptProcessChemo$rx)){
-  Tx2[i]<-ifelse(250<=ptProcessChemo$tr[i] & ptProcessChemo$tr[i]<500, ptProcessChemo$rx*1, 0)
-}
-
-Tx3<-list()
-length(Tx3)<-length(ptProcessChemo$yir)
-
-
-for(i in 1:length(ptProcessChemo$rx)){
-  Tx3[i]<-ifelse(ptProcessChemo$tr[i]>=500, ptProcessChemo$rx*1, 0)
-}
-
-ptProcessChemo<-cbind(ptProcessChemo, as.numeric(unlist(Tx1)),  as.numeric(unlist(Tx2)),  as.numeric(unlist(Tx3)))
-colnames(ptProcessChemo)<-c("subject", "rx", "status", "survt", "r", "tr", "dir", "yir","Time1", "Time2", "Time3")
+ptProcessChemo$Time1 <- ifelse(ptProcessChemo$tr<250, ptProcessChemo$rx*1, 0)
+ptProcessChemo$Time2 <- ifelse(250<=ptProcessChemo$tr & ptProcessChemo$tr<500, ptProcessChemo$rx*1, 0)
+ptProcessChemo$Time3 <- ifelse(ptProcessChemo$tr>=500, ptProcessChemo$rx*1, 0)
 head(ptProcessChemo)
 
 poissonChemo3<-glm(yir ~ I(as.factor(r)) + Time1 + Time2 + Time3 + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessChemo)
+summary(poissonChemo3)
 
 #   The following printout shows the results from using a
 #   heaviside function approach with an extended Cox model
