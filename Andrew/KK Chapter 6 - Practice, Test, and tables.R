@@ -19,7 +19,7 @@ setwd("~/GitHub")
 #Column 4 = log WBC
 #Column 5 = Rx (1=placebo, 0=treatment)
 
-dsAnderson<-read.csv("./SurvivalExercises/Andrew/dsAnderson.csv")
+dsAnderson<-read.csv("./Andrew/dsAnderson.csv")
 colnames(dsAnderson)<-c("subject", "survt", "status", "sex", "logWBC", "rx")
 
 AndersonPh<-coxph(Surv(survt, status==1)~sex+logWBC+rx, data=dsAnderson, ties="breslow")
@@ -196,7 +196,7 @@ poissonAnderson9<-glm(yir ~ I(as.factor(r)) + logWBC + rx + strata(sex) + offset
 #  Column 2 = status (0=censored, 1=died)
 #  Column 3 = survival time (days)
 
-dsChemo<-read.csv("./SurvivalExercises/Andrew/dsChemo.csv")
+dsChemo<-read.csv("./Andrew/dsChemo.csv")
 colnames(dsChemo)<-c("subject", "rx", "status", "survt")
 
 
@@ -235,6 +235,8 @@ cox.zph(ChemoPh, transform="rank")
 
 eventTimes <- unique(dsChemo$survt[dsChemo$status==1])
 eventTimes <- eventTimes[order(eventTimes)]
+
+eventTimes
 
 createPTable <- function(d){  
   dNew <- d
@@ -280,14 +282,19 @@ head(ptProcessChemo)
 # 
 # ptProcessChemo<-cbind(ptProcessChemo, as.numeric(unlist(Tx1)),  as.numeric(unlist(Tx2)),  as.numeric(unlist(Tx3)))
 # colnames(ptProcessChemo)<-c("subject", "rx", "status", "survt", "r", "tr", "dir", "yir","Time1", "Time2", "Time3")
-
+unique(ptProcessChemo$rx)
+unique(ptProcessChemo$Time1)
 ptProcessChemo$Time1 <- ifelse(ptProcessChemo$tr<250, ptProcessChemo$rx*1, 0)
+#ptProcessChemo$Time2 <- ifelse(250<=ptProcessChemo$tr, ptProcessChemo$rx*1, 0)
 ptProcessChemo$Time2 <- ifelse(250<=ptProcessChemo$tr & ptProcessChemo$tr<500, ptProcessChemo$rx*1, 0)
 ptProcessChemo$Time3 <- ifelse(ptProcessChemo$tr>=500, ptProcessChemo$rx*1, 0)
 head(ptProcessChemo)
 
 poissonChemo3<-glm(yir ~ I(as.factor(r)) + Time1 + Time2 + Time3 + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessChemo)
 summary(poissonChemo3)
+
+ptProcessChemo[ptProcessChemo$subject %in% 24,]
+
 
 #   The following printout shows the results from using a
 #   heaviside function approach with an extended Cox model

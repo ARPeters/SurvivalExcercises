@@ -1,7 +1,7 @@
 library(survival)
 library(foreign)
 
-rm(list=ls(all=TRUE))
+#rm(list=ls(all=TRUE))
 ################################
 #CHAPTER 6: Test
 ################################
@@ -35,19 +35,23 @@ summary(ChemoPh)
 
 #Chemo.cp=survSplit(dsChemo,cut=dsChemo$SurvTime[dsChemo$Status==1], end="SurvTime", event="Status", start="start", id="id")
 
+cutOff <- 249 
+#Note that survSplit uses the cutoff to end one time period and ALSO begin the next period
+#So, in order for this model to agree with our count process model, 
+#need to consider end points using <= and not < logic.  
+#In the example below, we'd like the endpoint to be < 250, so for survSplit we split the data using <= 249.
+Chemo.cp250 <- survSplit(dsChemo, cut=cutOff, end="SurvTime", event="Status", start="start", id="id")                   
 
-Chemo.cp250 <- survSplit(dsChemo, cut=250, end="SurvTime", event="Status", start="start", id="id")                   
-
-Chemo.cp250=Chemo.cp250[order(Chemo.cp250$id, Chemo.cp250$start,])]
+#Chemo.cp250=Chemo.cp250[order(Chemo.cp250$id, Chemo.cp250$start,])]
 
 
-Chemo.cp250$Time1 <- Chemo.cp250$Rx*(Chemo.cp250$start<250)
-Chemo.cp250$Time2 <- Chemo.cp250$Rx*(Chemo.cp250$start>=250)
+Chemo.cp250$Time1 <- Chemo.cp250$Rx*(Chemo.cp250$start<cutOff)
+Chemo.cp250$Time2 <- Chemo.cp250$Rx*(Chemo.cp250$start>=cutOff)
 
 
 Y250=Surv(Chemo.cp250$start, Chemo.cp250$SurvTime, Chemo.cp250$Status)
 
-ChemoPh2<-coxph(Y250~Time1 +  Time2, data=Chemo.cp250)
+ChemoPh2<-coxph(Y250~Time1 + Time2, data=Chemo.cp250)
 
 summary(ChemoPh2)
 
