@@ -123,3 +123,57 @@ legend(x=40, y=0.8, legend=c("Stratum 2 = Red"))
 #Test Questions
 #####################################
 
+#1) Suppose that Bonnie and Lonnie are the only two subjects in the dataset swown below, where both subjects have two recurrent events that 
+#   occur at dfferent times. 
+
+ID<-c("B", "B", "R", "R")
+Status<-1
+Stratum<-c(1, 2, 1, 2)
+Start<-c(0, 12, 0, 20)
+Stop<-c(12, 16, 20, 23)
+
+ds<-cbind(ID, Status, Stratum, Start, Stop)
+ds<-as.data.frame(ds)
+ds
+
+#A) Fill in the empty cels in the following data layuut describing survival time to the first event (stratum 1):
+survObject<-Surv(time=as.numeric(as.vector(ds$Start)), time2=as.numeric(as.vector(ds$Stop)), event=ds$Status==1)
+
+survlayout1A<-summary(survfit(survObject~strata(Stratum), data=ds))
+survlayout1A
+
+#B) Why will the laout given in part A be the same regardless of whether the analysis approach is the counting process, stratified CP, gap time, 
+#   or marginal approaches?
+
+#   The other approaches are all geared towards allowing for recurrent events. All methods necessarily give the same estimates regarding each 
+#   subject's first event. 
+
+#C) Fill in the epty cells in the following data layout describing survival time from the first to the second event (stratum 2) using the stratified
+#   Counting Process
+
+survObject<-Surv(time=as.numeric(as.vector(ds$Stop)), event=ds$Status==1)
+survlayout1C<-summary(survfit(survObject~strata(Stratum), data=ds))
+survlayout1C
+
+#D) Fill in the empty cells in the foloowing data layout describing survival time from the first to the second event (stratum 2) using the gap-time approach
+
+ds$gaptime<-as.numeric(as.vector(ds$Stop))-as.numeric(as.vector(ds$Start))
+
+survObject<-Surv(time=as.numeric(as.vector(ds$gaptime)), event=ds$Status==1)
+survlayout1D<-summary(survfit(survObject~strata(Stratum), data=ds))
+survlayout1D
+
+#E) Fill in the empty cells in the following data layout describing survival time from the first to the second event using the marginal approach
+survObject<-Surv(time=as.numeric(as.vector(ds$Stop)), event=ds$Status==1)
+survlayout1E<-summary(survfit(survObject~strata(Stratum), data=ds))
+survlayout1E
+
+#F) For the Stratfed Counting Process approach discribed in part c, determine which of the following choices is correct.
+#   i: L(R)onnie is in the risk set when Bonnie gets her second event. 
+
+#G) For the Gap Time approach described in part d, determine which of the following choices is correct. 
+#   ii: Bonnie is in the risk set when L(R)onnie gets her second event. 
+
+#H) For the Marginal Approach described in part e, determine which of hte following choices is correct:
+#   i: L(R)onnie is in the risk set when Bonnie gets her second event. 
+

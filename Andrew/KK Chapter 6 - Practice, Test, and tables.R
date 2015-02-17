@@ -62,7 +62,6 @@ cox.zph(AndersonPh, transform="rank")
 
 #5) 
 
-
 eventTimes <- unique(dsAnderson$survt[dsAnderson$status==1])
 eventTimes <- eventTimes[order(eventTimes)]
 
@@ -103,7 +102,7 @@ for(i in 1:length(ptProcessAnderson$tr)){
 head(ptProcessAnderson)
 ptProcessAnderson<-cbind(ptProcessAnderson, as.integer(unlist(Int1)), as.integer(unlist(Int2)))
 colnames(ptProcessAnderson)<-c("subject", "survt", "status", "sex", "logWBC", "rx","r", "tr", "dir", "yir", "Int1", "Int2")
-poissonAndersos5<-glm(yir ~ I(as.factor(r)) + logWBC + rx + Int1 + Int2 + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessAnderson)
+poissonAnderson5<-glm(yir ~ I(as.factor(r)) + logWBC + rx + Int1 + Int2 + offset(I(log(dir))), family=poisson(link = "log"), data=ptProcessAnderson)
 
 #   Using the above computer results, carry out a test of hypothesis,
 #   estimate the hazard ratio, and obtain 95% confidence
@@ -122,7 +121,11 @@ poissonAndersos5<-glm(yir ~ I(as.factor(r)) + logWBC + rx + Int1 + Int2 + offset
 #   curves over time.
 #   For the situation just described, write down the extended Cox
 #   model, which contains Rx, log WBC, and Sex as main effects
+<<<<<<< Updated upstream
 #   plus the product term sex ? time.
+=======
+#   plus the product term sex x time.
+>>>>>>> Stashed changes
 
 #   h(t, X(t))= h-null(t)exp(B1(sex)+B2(logWBC)+B3(rx)+epsilon1(sex*t)
 
