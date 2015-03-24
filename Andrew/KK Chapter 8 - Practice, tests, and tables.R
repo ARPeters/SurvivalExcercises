@@ -151,7 +151,7 @@ survlayout1A
 #C) Fill in the epty cells in the following data layout describing survival time from the first to the second event (stratum 2) using the stratified
 #   Counting Process
 
-survObject<-Surv(time=as.numeric(as.vector(ds$Stop)), event=ds$Status==1)
+survObject<-Surv(time=as.numeric(as.vector(ds$Start)),time2=as.numeric(as.vector(ds$Stop)), event=ds$Status==1)
 survlayout1C<-summary(survfit(survObject~strata(Stratum), data=ds))
 survlayout1C
 
@@ -273,15 +273,25 @@ summary(gapMod2)
 
 #Marginal approach
 require(plyr)
-lastStop <- function(d){
-  d$newStop <- ifelse(is.na(d$stop),max(d$stop,na.rm=T),d$stop)
-  d$newEvent <- ifelse(is.na(d$event),0,d$event)
-  return(d)
-}
-dat8_2d <- ddply(dat8_2c,"id",lastStop)
-head(dat8_2d,50)
+require(dplyr)
+
+dat8_2d <- dat8_2c %>% group_by(id) %>%
+  dplyr::mutate(newStop = ifelse(is.na(stop),max(stop,na.rm=T),stop),
+                        newEvent = ifelse(is.na(event),0,event))     
+head(as.data.frame(dat8_2d),50)
+
+# lastStop <- function(d){
+#   d$newStop <- ifelse(is.na(d$stop),max(d$stop,na.rm=T),d$stop)
+#   d$newEvent <- ifelse(is.na(d$event),0,d$event)
+#   return(d)
+# }
+# dat8_2d <- ddply(dat8_2c,"id",lastStop)
+
 mrgMod2 <- coxph(data=dat8_2d, Surv(time=newStop, event=newEvent==1) ~ tx+smoking+cluster(id)+strata(eventOcc),ties="breslow")
 summary(mrgMod2)
+
+mrgMod3 <- coxph(data=dat8_2d, Surv(time=newStop, event=newEvent==1) ~ tx*strata(eventOcc)+smoking*strata(eventOcc)+cluster(id),ties="breslow")
+summary(mrgMod3)
 
 #A) State the hazard function formula for the no-interaction model used to fit the CP appraoch. 
 #    H(t,x)= hnull(t)*exp(B1*tx+B2*Smoking)
