@@ -148,6 +148,84 @@ rm(list=ls(all=TRUE))
 # is time (in days) until an event occurs. The covariate of interest was Smoking History 
 # (1 ¼ ever smoked, 0 ¼ never smoked). Questions about the analysis of this dataset follow.
 
+#Col 1 = id, Col 2 = event, Col 3 = start, Col 4  stop, Col 5 = tx, Col 6 = smoking
+
+dsCh8Test2 <- c("01 1 0 39 0 0 12 1 0 39 0 1
+01 1 39 66 0 0 12 1 39 80 0 1
+01 1 66 97 0 0 12 0 80 107 0 1
+02 1 0 34 0 1 13 1 0 36 0 1
+02 1 34 65 0 1 13 1 36 64 0 1
+02 1 65 100 0 1 13 1 64 95 0 1
+03 1 0 36 0 0 14 1 0 46 0 1
+03 1 36 67 0 0 14 1 46 77 0 1
+03 1 67 96 0 0 14 0 77 111 0 1
+04 1 0 40 0 0 15 1 0 61 0 1
+04 1 40 80 0 0 15 1 61 79 0 1
+04 0 80 111 0 0 15 0 79 111 0 1
+05 1 0 45 0 0 16 1 0 57 0 1
+05 1 45 68 0 0 16 0 57 79 0 1
+05 . 68 . 0 0 16 . 79 . 0 1
+06 1 0 33 0 1 17 1 0 37 0 1
+06 1 33 66 0 1 17 1 37 76 0 1
+06 1 66 96 0 1 17 0 76 113 0 1
+07 1 0 34 0 1 18 1 0 58 0 1
+07 1 34 67 0 1 18 1 58 67 0 1
+07 1 67 93 0 1 18 0 67 109 0 1
+08 1 0 39 0 1 19 1 0 58 1 1
+08 1 39 72 0 1 19 1 58 63 1 1
+08 1 72 102 0 1 19 1 63 106 1 1
+09 1 0 39 0 1 20 1 0 45 1 0
+09 1 39 79 0 1 20 1 45 72 1 0
+09 0 79 109 0 1 20 1 72 106 1 0
+10 1 0 36 0 0 21 1 0 48 1 0
+10 1 36 65 0 0 21 1 48 81 1 0
+10 1 65 96 0 0 21 1 81 112 1 0
+11 1 0 39 0 0 22 1 0 38 1 1
+11 1 39 78 0 0 22 1 38 64 1 1
+11 1 78 108 0 0 22 1 64 97 1 1
+23 1 0 51 1 1 30 1 0 57 1 0
+23 1 51 69 1 1 30 1 57 78 1 0
+23 0 69 98 1 1 30 1 78 99 1 0
+24 1 0 43 1 1 31 1 0 44 1 1
+24 1 43 67 1 1 31 1 44 74 1 1
+24 0 67 111 1 1 31 1 74 96 1 1
+25 1 0 46 1 0 32 1 0 38 1 1
+25 1 46 66 1 0 32 1 38 71 1 1
+25 1 66 110 1 0 32 1 71 105 1 1
+26 1 0 33 1 1 33 1 0 38 1 1
+26 1 33 68 1 1 33 1 38 64 1 1
+26 1 68 96 1 1 33 1 64 97 1 1
+27 1 0 51 1 1 34 1 0 38 1 1
+27 1 51 97 1 1 34 1 38 63 1 1
+27 0 97 115 1 1 34 1 63 99 1 1
+28 1 0 37 1 0 35 1 0 49 1 1
+28 1 37 79 1 0 35 1 49 70 1 1
+28 1 79 93 1 0 35 0 70 107 1 1
+29 1 0 41 1 1 36 1 0 34 1 1
+29 1 41 73 1 1 36 1 34 81 1 1
+29 0 73 111 1 1 36 1 81 97 1 1")
+                
+dsCh8Test2 <- data.frame(matrix(as.numeric(unlist(strsplit(dsCh8Test2,split="\\s|\\n"))),ncol=6,byrow=T))
+colnames(dsCh8Test2) <- c("id","event","start","stop","tx","smoking")
+
+dsCh8Test2Final <- dsCh8Test2[order(dsCh8Test2$id,dsCh8Test2$start),]
+rm(dsCh8Test2)
+
+#CP Approach
+cpApproach <- coxph(data=dsCh8Test2Final, Surv(time=start, time2=stop,event=event==1) ~ tx+smoking+cluster(id),ties="breslow")
+summary(cpApproach)
+
+#Stratified CP approach
+dsCh8Test2Final$event <- rep(1:3,36)
+stratcpApproach <- coxph(data=dsCh8Test2Final, Surv(time=start, time2=stop,event=event==1) ~ tx+smoking+cluster(id)+strata(event),ties="breslow")
+summary(stratcpApproach)
+
+#Gap approach
+dsCh8Test2Final$gapTime <- dsCh8Test2Final$stop - dsCh8Test2Final$start
+head(dsCh8Test2Final)
+gapApproach <- coxph(data=dsCh8Test2Final, Surv(time=gapTime,event=event==1) ~ tx+smoking+cluster(id)+strata(event),ties="breslow")
+summary(gapApproach)
+
 ################################
 # A
 ################################
