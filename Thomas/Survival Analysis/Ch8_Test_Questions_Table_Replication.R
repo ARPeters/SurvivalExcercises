@@ -211,6 +211,11 @@ colnames(dsCh8Test2) <- c("id","event","start","stop","tx","smoking")
 dsCh8Test2Final <- dsCh8Test2[order(dsCh8Test2$id,dsCh8Test2$start),]
 rm(dsCh8Test2)
 
+library(dplyr)
+ordDf <- arrange(dsCh8Test2Final,start,stop) %>% filter(duplicated(id)) %>% filter(!duplicated(id)) %>% 
+  mutate(gap2 = stop - start) %>% arrange(gap2) %>% arrange(stop)
+#ordDf <- dsCh8Test2Final[order(dsCh8Test2Final$start,),]
+#ordDf[!duplicated(ordDf$id),]
 #CP Approach
 cpApproach <- coxph(data=dsCh8Test2Final, Surv(time=start, time2=stop,event=event==1) ~ tx+smoking+cluster(id),ties="breslow")
 summary(cpApproach)
