@@ -351,7 +351,9 @@ rm(list=ls(all=TRUE))
 # State a cause-specific no-interaction Cox PH model for assessing the effect of group status (G) on time
 # until a hospital infection event.
 
-# ?????????????????????????????
+# hHI(t, X) = h0(t)exp[B1HIG + B2HITMS + B3HIAge]
+
+# HI indicates a hospital infection
 
 ################################
 # Question 28
@@ -368,6 +370,193 @@ rm(list=ls(all=TRUE))
 
 # Describe or provide a table that would show how the data on the ith patient should be augmented for input
 # into a Lunn–McNeil (LM) model for this analysis
+
+# Subj Time Status  D1  D2  G   TMS   AGE
+# i     ti  e1i     1   0   Gi  TMSi  AGEi
+# i     ti  e2i     0   0   Gi  TMSi  AGEi
+# 
+# e1i = 1 if the ith subject develops a hospital infection, otherwise 0
+# e21 = 1 if the ith sujbect dies after surgery, otherwise 0
+# 
+# D1 = indicator for infection
+# D2 = indicator for death after surgery
+
+################################
+# Question 30
+################################
+
+# State a LMmodel that can be used with an augmented dataset that will provide identical results to those
+# obtained from using the model of Question 27.
+
+#hg(t, X) = h0g(t)exp[B1G + B2TMS + B3Age + Theta21D2G + Theta22D2TMS + Theta23D''2AGe]
+
+################################
+# Question 31
+################################
+
+# For the LM model of Question 30, what is the formula for the hazard ratio for the group effect G, controlling
+# for TMS and AGE.
+
+# HRHI(RX = 1 vs RX = 9) = exp[B1]
+
+################################
+# Question 32
+################################
+
+# Describe how you would test whether a no-interaction SC LM model would be more appropriate than an
+# interaction SC LM model.
+
+# Do a likelihood ratio test to compare a full (SC Interaction LM) model to a reduced (no-interaction SC LM) model
+
+################################
+# Question 33
+################################
+
+# State a LMalt model that can be used with an augmented dataset that will provide identical results to
+# those obtained from using the model of Question 27.
+
+################################
+# Question 34
+################################
+
+# For the LMalt model of Question 33, what is the formula for the hazard ratio for the group effect G,
+# controlling for TMS and AGE?
+
+################################
+# Test
+################################
+
+The dataset shown below describes a hypothetical study of recurrent bladder cancer. The entire dataset contained 53
+patients, each with local bladder cancer tumors who are followed for up to 30 months after transurethral surgical
+excision. Three competing risks being considered are local recurrence of bladder cancer tumor (event ¼ 1), bladder
+metastasis (event = 2), or other metastasis (event = 3). The variable time denotes survival time up to the occurrence
+of one of the three events or censorship from loss to follow-up, withdrawal, or end of study. The exposure variable
+of interest is drug treatment status (tx, 0 = placebo, 1 = treatment A), The covariates listed here are initial
+number of tumors (num) and initial size of tumors (size) in centimeters.
+
+
+id  event time  tx  num size
+1   1     8     1   1   1
+2   0     1     0   1   3
+3   0     4     1   2   1
+4   0     7     0   1   1
+5   0     10    1   5   1
+6   2     6     0   4   1
+7   0     10    1   4   1
+8   0     14    0   1   1
+9   0     18    1   1   1
+10  3     5     0   1   3
+11  0     18    1   1   3
+12  1     12    0   1   1
+13  2     16    1   1   1
+14  0     18    0   1   1
+15  0     23    1   3   3
+16  3     10    0   1   3
+17  1     15    1   1   3
+18  0     23    0   1   3
+19  2     3     1   1   1
+20  3     16    0   1   1
+21  1     23    1   1   1
+22  1     3     0   3   1
+23  2     9     1   3   1
+24  2     21    0   3   1
+25  0     23    1   3   1
+26  3     7     0   2   3
+27  3     10    1   2   3
+28  1     16    0   2   3
+29  1     24    1   2   3
+30  1     3     0   1   1
+31  2     15    1   1   1
+32  2     25    0   1   1
+33  0     26    1   1   2
+34  1     1     0   8   1
+35  0     26    1   8   1
+36  1     2     0   1   4
+37  1     26    1   1   4
+38  1     25    0   1   2
+39  0     28    1   1   2
+40  0     29    0   1   4
+41  0     29    1   1   2
+42  0     29    0   4   1
+43  3     28    1   1   6
+44  1     30    0   1   6
+45  2     2     1   1   5
+46  1     17    0   1   5
+47  1     22    1   1   5
+48  0     30    0   1   5
+49  3     3     1   2   1
+50  2     6     0   2   1
+51  3     8     1   2   1
+52  3     12    0   2   1
+53  0     30    1   2   1
+
+################################
+# Question 1
+################################
+
+# Suppose you wish to use these data to determine the effect of tx on survival time for the cause-specific
+# event of a local recurrence of bladder cancer. State a no-interaction Cox PH model for assessing this relationship
+# that adjusts for the covariates num and size.
+
+# h1(t, X) = h01(t)exp[B11tx + b21num + b31size]
+
+
+################################
+# Question 2
+################################
+
+# When fitting the model given in Question 1, which subjects are considered censored?
+
+# Censor event 2 (bladder metastasis) and event 3 (other metastasis)
+
+################################
+# Question 3
+################################
+
+# How would you modify your answers to Questions 1 and 2 if you were interested in the effect of tx on
+# survival time for the cause-specific event of finding metastatic bladder cancer?
+
+# Model would be h2 and h02 instead and censor event 1 and event 3
+
+################################
+# Question 4
+################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
