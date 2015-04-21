@@ -217,3 +217,169 @@ dsB
 #34)For the LM Model of question 33, what is the formula for hte hazar ratio for the group effect G, controlling for TMS and AGE?
 
 #   haz=exp(B3)
+
+#####################################
+#Test Questions
+#####################################
+
+# The dataset shown below describes a hypothetical study of
+# recurrent bladder cancer. The entire dataset contained 53
+# patients, each with local bladder cancer tumors who are
+# followed for up to 30 months after transurethral surgical
+# excision. Three competing risks being considered are local
+# recurrence of bladder cancer tumor (event ¼ 1), bladder
+# metastasis (event ¼ 2), or other metastasis (event ¼ 3).
+# The variable time denotes survival time up to the occurrence
+# of one of the three events or censorship from loss to
+# follow-up, withdrawal, or end of study. The exposure variable
+# of interest is drug treatment status (tx, 0 = placebo,
+# 1 = treatment A), The covariates listed here are initial
+# number of tumors (num) and initial size of tumors (size)
+# in centimeters.
+
+data9<-c("1 1 8 1 1 1
+2 0 1 0 1 3
+3 0 4 1 2 1
+4 0 7 0 1 1
+5 0 10 1 5 1
+6 2 6 0 4 1
+7 0 10 1 4 1
+8 0 14 0 1 1
+9 0 18 1 1 1
+10 3 5 0 1 3
+11 0 18 1 1 3
+12 1 12 0 1 1
+13 2 16 1 1 1
+14 0 18 0 1 1
+15 0 23 1 3 3
+16 3 10 0 1 3
+17 1 15 1 1 3
+18 0 23 0 1 3
+19 2 3 1 1 1
+20 3 16 0 1 1
+21 1 23 1 1 1
+22 1 3 0 3 1
+23 2 9 1 3 1
+24 2 21 0 3 1
+25 0 23 1 3 1
+26 3 7 0 2 3
+27 3 10 1 2 3
+28 1 16 0 2 3
+29 1 24 1 2 3
+30 1 3 0 1 1
+31 2 15 1 1 1
+32 2 25 0 1 1
+33 0 26 1 1 2
+34 1 1 0 8 1
+35 0 26 1 8 1
+36 1 2 0 1 4
+37 1 26 1 1 4
+38 1 25 0 1 2
+39 0 28 1 1 2
+40 0 29 0 1 4
+41 0 29 1 1 2
+42 0 29 0 4 1
+43 3 28 1 1 6
+44 1 30 0 1 6
+45 2 2 1 1 5
+46 1 17 0 1 5
+47 1 22 1 1 5
+48 0 30 0 1 5
+49 3 3 1 2 1
+50 2 6 0 2 1
+51 3 8 1 2 1
+52 3 12 0 2 1
+53 0 30 1 2 1")
+
+data9b<-data.frame(matrix(as.numeric(unlist(strsplit(data9, split="\\s|\\n"))), ncol=6,byrow=TRUE))
+colnames(data9b)<-c("ID", "Event", "Time", "TX", "NUM", "Size")
+
+#1) Suppose you wish to use these data to determine
+#   the effect of tx on survival time for the cause-specific
+#   event of a local recurrence of bladder cancer. State a
+#   no-interaction Cox PH model for assessing this relationship
+#   that adjusts for the covariates num and size.
+
+#   haz(x,t)=hnull(x)exp(B1*TX + B2*NUM + B3*Size); events other than local recurrence (event=1) are considered censored.
+
+#2) When fitting the model given in Question 1, which subjects are considered censored?
+
+#   Bladder metastasis (event=2) and other metastasis (event=3) are considered censored. 
+
+#3) How would you modify your answers to Questions 1
+#   and 2 if you were interested in the effect of tx on
+#   survival time for the cause-specific event of finding
+#   metastatic bladder cancer?
+
+#   I would treat local recurrence (event=1) and other mestasis (event=3) as censored and fit essentially the same Cox PH model. 
+
+#4) For the model considered in Question 1, briefly
+#   describe how to carry out a sensitivity analysis to determine
+#   how badly the results from fitting this model
+#   might be biased if the assumption of independent competing
+#   risks is violated.
+
+#   To see how biased this model might be, we would compare our Cox PH model to those for which the independence assumption has been
+#   thoroughly violated. This could be done by considering all events to be the single event type of interest, or by changing the
+#   survival times of event types 2 and 3 to the last possible time, essentially treating them as event-free. 
+#   We would then calculate a Cox PH model for one or both of these assumptions and compare them to the Cox PH model from question 1.
+#   This does not give any evidence of dependence or independence, but it does offer a view of how biased our first model might be
+#   under worst-case conditions. 
+
+#5) 
+data9_5tx1<-c("0 27 0 0 — — —
+2 27 0 0 1 0 0
+3 26 0 0 .9630 0 0
+4 24 0 0 .8889 0 0
+8 23 1 .0435 .8889 .0387 .0387
+9 21 0 0 .8116 0 .0387
+10 20 0 0 .7729 0 .0387
+15 17 1 .0588 .7343 .0432 .0819
+16 15 0 0 .6479 0 .0819
+18 14 0 0 .6047 0 .0819
+22 12 1 .0833 .6047 .0504 .1323
+23 11 1 .0910 .5543 .0504 .1827
+24 8 1 .1250 .5039 .0630 .2457
+26 7 1 .1429 .4409 .0630 .3087
+28 4 0 0 .3779 0 .3087
+29 2 0 0 .2835 0 .3087
+30 1 0 0 .2835 0 .3087")
+
+ds9_5tx1<-data.frame(matrix(as.numeric(unlist(strsplit(data9_5tx1, split="\\s|\\n"))), ncol=7,byrow=TRUE))
+colnames(ds9_5tx1)<-c("tf", "nf", "d1f", "h1" ,"S1", "I1", "CIC1")
+ds9_5tx1
+
+data9_5tx0<-c("0 26 0 0 — — —
+1 26 1 .0400 1 .0400 .0400
+2 24 1 .0417 .9615 .0400 .0800
+3 23 2 .0870 .9215 .0801 .1601
+5 21 0 0 .8413 0 .1601
+6 20 0 0 .8013 0 .1601
+7 18 0 0 .7212 0 .1601
+10 16 0 0 .6811 0 .1601
+12 15 1 .0667 .6385 .0426 .2027
+14 13 0 0 .6835 0 .2027
+16 12 1 .0833 .5534 .0461 .2488
+17 10 1 .1000 .4612 .0461 .2949
+18 9 0 0 .4150 0 .2949
+21 8 0 0 .4150 0 .2949
+23 7 0 0 .3632 0 .2949
+25 6 1 .1667 .3632 .0605 .3554
+29 4 0 0 .2421 0 .3554
+30 2 1 0 .2421 0 .3554")
+
+
+ds9_5tx0<-data.frame(matrix(as.numeric(unlist(strsplit(data9_5tx0, split="\\s|\\n"))), ncol=7,byrow=TRUE))
+colnames(ds9_5tx0)<-c("tf", "nf", "d1f", "h1" ,"S1", "I1", "CIC1")
+ds9_5tx0
+
+#5A)  Verify the CIC1 calculation provided at failure time
+#     tf = 8 for persons in the treatment group (tx = 1);
+#     that is, use the original data to compute h1(tf), S(tf1),
+#     I1(tf), and CIC1(tf), assuming that the calculations
+#     made up to this failure time are correct.
+
+#     h1(tf=8)  = (1/23) =  0.04347
+#     S(tf1=8)  = (26/27)*(24/26) = 0.88889
+#     I1(tf=8)  = (h1(tf=8))*(S1(tf=8))=(1/23)*(24/27)=0.03865
+#     CIC(tf=8) = 0 + 0.03865 = 0.03865

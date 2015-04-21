@@ -1,0 +1,17 @@
+{
+    "contents" : "rm(list = ls(all.names = TRUE))\nlibrary(foreign)\nlibrary(plyr)\n\nsetwd(\"S:/CCAN/CCANResEval/MIECHV/RedCap/Chomp/DataSnapshots/C1/Activity/2015-04-10\")\nds<-read.csv(\"childrenfirstdata.csv\")\nsetwd(\"C:/Users/APETERS4/Documents/GitHub/SurvivalExercises/SurvivalExercises/SurvivalExercises/Andrew\")\n\n\nb_first_name<-ds$Child_First_Name_4610\nb_last_name<-ds$Child_Last_Name_6756\n\nbirth_date<-ds$CHild_DOB\n\nbirth_gender<-ifelse(ds$Infant_Gender_4634==\"Female\", 1, ifelse(ds$Infant_Gender_4634==\"Male\", 0, NA))\ntable(ds$Infant_Gender_4634)\ntable(birth_gender)\n\nmailing_street<-ds$address1\n#RES_ADDR2<-ds$address2\nmailing_city<-ds$city\naddress_zip<-ds$zip\n\ncity_of_residence<-ds$city\n\n\nmother_first_name<-ds$clientfirst\nmother_last_name<-ds$clientlast\n\nmother_dob<-ds$dob\n\nmother_ssn<-ds$PCG_SSN\n\n#Taken from https://stat.ethz.ch/pipermail/r-help/2006-March/101023.html\n#interleave <- function(v1,v2)\n#{\n#  ord1 <- 2*(1:length(v1))-1\n#  ord2 <- 2*(1:length(v2))\n#  c(v1,v2)[order(c(ord1,ord2))]\n#}\n\n#insert_str <- function(target, insert, index) {\n#  insert <- insert[order(index)]\n#  index <- sort(index)\n#  paste(interleave(split_str_by_index(target, index), insert), collapse=\"\")\n#}\n\n#MSSN<-vector()\n\n#for(i in 1:length(ds$PCG_SSN)){\n#  if (ds$PCG_SSN[i]==\"NA\" | is.na(ds$PCG_SSN[i])==TRUE){\n#    next\n#  } \n#  MSSN[i]<-insert_str(ds$PCG_SSN[i], c(\"-\",\"-\"), c(4,6))\n#}\n#MSSN[1:10]\n#PCG_SSN[1:10]\n\nraw_mothers_hispanic_origin<-ifelse(ds$PCG_ethnic==\"Non-Hispanic\", 0, \"Hispanic\")\ntable(ds$PCG_ethnic)\ntable(raw_mothers_hispanic_origin)\n\n\nraw_mothers_race<-ifelse(\n  ds$PCG_racecat==\"White\", 1, ifelse(\n    ds$PCG_racecat==\"Black or African American\", 2, ifelse(\n      ds$PCG_racecat==\"American Indian or Alaska Native\", 3, ifelse(\n        ds$PCG_racecat==\"Unrecorded\", 9, \"Unclassified\"))))\ntable(ds$PCG_racecat)\ntable(raw_mothers_race)\n\nmothers_marital_status<-ifelse(\n  ds$marital==\"Married\" | ds$marital==\"Separated\", 1, ifelse(\n    ds$marital==\"Widowed\" | ds$marital==\"Divorced\" | ds$marital==\"Never married\", 2, \"Unclassified\"))\ntable(ds$marital)\ntable(mothers_marital_status)\n\ndsOld<-cbind(b_first_name, b_last_name, birth_date, birth_gender, mailing_street, mailing_city, address_zip, city_of_residence, mother_first_name, mother_last_name, mother_dob, mother_ssn, raw_mothers_hispanic_origin, raw_mothers_race, mothers_marital_status)\n",
+    "created" : 1429588183115.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2605205630",
+    "id" : "4641ECA3",
+    "lastKnownWriteTime" : 1429591000,
+    "path" : "~/GitHub/SurvivalExercises/SurvivalExercises/SurvivalExercises/Andrew/cfirstToVROld.R",
+    "project_path" : "Andrew/cfirstToVROld.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
