@@ -3,6 +3,8 @@ rm(list = ls(all.names = TRUE))
 
 library(survival)
 library(survrec)
+library(cmprsk)
+
 #####################################
 #Practice Questions
 #####################################
@@ -383,3 +385,109 @@ ds9_5tx0
 #     S(tf1=8)  = (26/27)*(24/26) = 0.88889
 #     I1(tf=8)  = (h1(tf=8))*(S1(tf=8))=(1/23)*(24/27)=0.03865
 #     CIC(tf=8) = 0 + 0.03865 = 0.03865
+
+#5B)  Verify the CIC1 calculation provided at failure time
+#     tf = 25 for persons in the treatment group (tx = 0).
+
+#     h1(tf=25)  = (1/6) =  0.1667
+#     S(tf1=25)  = S(21)*P(tf>23|tf>=23)=(.4150)*(7/8) = 0.36312
+#     I1(tf=25)  = (h1(tf=25))*(S1(tf=25))=(1/6)*(0.36312)=0.0605
+#     CIC(tf=25) = CIC(tf=23) + I(tf=25) = .2949 + 0.0605
+
+#5C)  Interpret the CIC1 values obtained for both tthe treatment and placebo groups at tf=30. 
+
+#     For the treatment group, there is an estimated probability of .3087 that any given individual will have experienced 
+#     a recurrence of bladder cancer by time tf=30, controlling for the competing risk of bladder or other metastasis. 
+
+
+#     For the placebo group, there is an estimated probability of .3554 that any given individual will have experienced 
+#     a recurrence of bladder cancer by time tf=30, controlling for local recurrence or other metastasis. 
+
+
+#6A)  The following output was obtained using separate models for each of the 3 event-types
+
+ds6<-data9b
+ds6$CR<-0
+ds6$CM<-0
+ds6$OM<-0
+
+for(i in 1:length(ds6$CR)){
+  ds6$CR[i]<-ifelse(ds6$Event[i]==1, 1, 0)
+  ds6$CM[i]<-ifelse(ds6$Event[i]==2, 1, 0)
+  ds6$OM[i]<-ifelse(ds6$Event[i]==3, 1, 0)
+  
+}
+
+hazard6a<-coxph(Surv(Time, CR)~TX+NUM+Size, data=ds6)
+hazard6b<-coxph(Surv(Time, CM)~TX+NUM+Size, data=ds6)
+hazard6c<-coxph(Surv(Time, OM)~TX+NUM+Size, data=ds6)
+
+hazard6a
+hazard6b
+hazard6c
+
+#     What is the effect of treatment on survial from having a local recurrence of bladder cancer? Is it significant?
+#     HR(tx=1, df=1) = 0.535, p=0.25; Not significant.
+
+hazard6a
+
+#6B)  What is the effect of treatment on survial from developing metastatic bladder cancer? Is it significant?
+#     HR(tx=1, df=2) = 0.987, p=0.985; Not significant.
+
+hazard6b
+
+#6C)  What is the effect of treatment on survial from other metastatic cancer? Is it significant?
+#     HR(tx=1, df=3) = 0.684, p=0.575; Not significant.
+
+hazard6c
+
+#7A)  Below is the ouput from fitting a LM model to the bladder cancer data.
+#     State the hazard model formula for the LM model used for the ouput?
+
+#     h(t,x)=hnull*exp(B1*tx+B2*num+B3*size
+#                     +B4*txd2+B5*numd2+B6sized2
+#                     +B7*txd3+B7*numd3+B7sized3)
+
+#7B)  Determine the estimated hazard ratios for the effect of each of the 3 cause-specific events based
+#     on the above output.
+
+#     HR(tx=1, df=1)=0.535
+#     HR(tx=1, df=2)=exp(-0.6258+0.6132)= 0.987
+#     HR(tx=1, df=3)=exp(-0.6258+0.2463)= 0.684
+
+#7C)  Verify that the stimated hazard ratios copmuted in part B are identical to the hazar rations computed in 
+#     question 6.
+
+#     Verified.
+
+#8A)   Below is the output from fitting an alternate Lunn-McNeil model to the bladder cancer data.
+#     State the hazard model formula for the LM model used for the ouput?
+
+#     h(t,x)=hnull*exp(B1*txd1+B2*numd1+B3*sized1
+#                     +B4*txd2+B5*numd2+B6*sized2
+#                     +B7*txd3+B8*numd3+B9*sized3
+
+
+
+#8B)  Determine the estimated hazard ratios for the effect of each of the 3 cause-specific events based
+#     on the above output.
+
+#     HR(tx=1, df=1)=0.535
+#     HR(tx=1, df=2)=exp(-0.0127)= 0.987
+#     HR(tx=1, df=3)=exp(-0.3796)= 0.684
+
+#7C)  Verify that the stimated hazard ratios copmuted in part B are identical to the hazar rations computed in 
+#     questions 6 and 7.
+
+#     Verified.
+
+#9)   State the formula for a no-interaction SC LM model for these data.
+
+#     h(t,x)=hnull-g*exp(B1*tx+B2*num+B3*size); g=1,2,3
+
+#10)  Describe how you would test whether a no-interaction SC LM model would be more appropriate than an interaction
+#     SC LM model.
+
+#     I would perform a likelihood ratio test, comparing the no-interaction model with the full model.
+
+
