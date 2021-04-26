@@ -121,11 +121,11 @@ poissonAnderson5<-glm(yir ~ I(as.factor(r)) + logWBC + rx + Int1 + Int2 + offset
 #   curves over time.
 #   For the situation just described, write down the extended Cox
 #   model, which contains Rx, log WBC, and Sex as main effects
-<<<<<<< Updated upstream
+# <<<<<<< Updated upstream
 #   plus the product term sex ? time.
-=======
+# =======
 #   plus the product term sex x time.
->>>>>>> Stashed changes
+# >>>>>>> Stashed changes
 
 #   h(t, X(t))= h-null(t)exp(B1(sex)+B2(logWBC)+B3(rx)+epsilon1(sex*t)
 
